@@ -13,17 +13,18 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([]).
+-export([start_link/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
--record(state, {}).
+-record(state, {port, lsock}).
 
 %% ====================================================================
 %% External functions
 %% ====================================================================
-
+start_link() ->
+	gen_server:start_link({local, ?MODULE}, ?MODULE, [8583], []).
 
 %% ====================================================================
 %% Server functions
@@ -37,8 +38,9 @@
 %%          ignore               |
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
-init([]) ->
-    {ok, #state{}}.
+init([Port]) ->
+	{ok, Lsock} = gen_tcp:listen(Port, [{active, true}]),
+    {ok, #state{port=Port, lsock=Lsock}, 0}.
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
@@ -50,7 +52,7 @@ init([]) ->
 %%          {stop, Reason, Reply, State}   | (terminate/2 is called)
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
-handle_call(Request, From, State) ->
+handle_call(_Request, _From, State) ->
     Reply = ok,
     {reply, Reply, State}.
 
@@ -61,7 +63,7 @@ handle_call(Request, From, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
-handle_cast(Msg, State) ->
+handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% --------------------------------------------------------------------
@@ -71,8 +73,16 @@ handle_cast(Msg, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
-handle_info(Info, State) ->
-    {noreply, State}.
+handle_info({tcp, Socket, RawData}, State) ->
+	{Length, Data} = lists:split(2, RawData),
+	io:format("Received: ~p~n", [Data]),
+	Request = erl8583_marshaller_ascii:unmarshal(Data),
+	Response = erl8583_message:response(Request),
+	gen_tcp:send(Socket, Length ++ erl8583_marshaller_ascii:marshal(Response)),
+    {noreply, State};
+handle_info(timeout, #state{lsock = LSock} = State) ->
+	{ok, _Sock} = gen_tcp:accept(LSock),
+	{noreply, State}.
 
 %% --------------------------------------------------------------------
 %% Function: terminate/2
