@@ -14,7 +14,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 %% --------------------------------------------------------------------
--export([start_link/1]).
+-export([start_link/1, start_child/0]).
 
 %% --------------------------------------------------------------------
 %% Internal exports
@@ -38,6 +38,8 @@
 start_link(LSock) ->
 	supervisor:start_link({local, ?SERVER}, ?MODULE, [LSock]).
 
+start_child() ->
+	supervisor:start_child(?SERVER, []).
 
 %% ====================================================================
 %% Server functions

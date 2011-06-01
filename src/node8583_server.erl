@@ -84,6 +84,7 @@ handle_info({tcp_closed, _Socket}, State) ->
 handle_info(timeout, #state{lsock = LSock} = State) ->
 	io:format("Listening...~n"),
 	{ok, _Sock} = gen_tcp:accept(LSock),
+	node8583_sup:start_child(),
 	io:format("Accepted.~n"),
 	{noreply, State}.
 
