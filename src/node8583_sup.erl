@@ -51,7 +51,7 @@ start_link() ->
 init([]) ->
     AChild = {node8583_server,{node8583_server,start_link,[]},
 	      permanent,2000,worker,[node8583_server]},
-    {ok,{{one_for_one,0,1}, [AChild]}}.
+    {ok,{{one_for_one,1,1}, [AChild]}}.
 
 %% ====================================================================
 %% Internal functions
