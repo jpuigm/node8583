@@ -13,18 +13,18 @@
 
 %% --------------------------------------------------------------------
 %% External exports
--export([start_link/0]).
+-export([start_link/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
--record(state, {port, lsock}).
+-record(state, {lsock}).
 
 %% ====================================================================
 %% External functions
 %% ====================================================================
-start_link() ->
-	gen_server:start_link({local, ?MODULE}, ?MODULE, [8583], []).
+start_link(LSock) ->
+	gen_server:start_link({local, ?MODULE}, ?MODULE, [LSock], []).
 
 %% ====================================================================
 %% Server functions
@@ -38,9 +38,8 @@ start_link() ->
 %%          ignore               |
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
-init([Port]) ->
-	{ok, Lsock} = gen_tcp:listen(Port, [{active, true}]),
-    {ok, #state{port=Port, lsock=Lsock}, 0}.
+init([LSock]) ->
+    {ok, #state{lsock=LSock}, 0}.
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
@@ -89,7 +88,7 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
 %% Description: Shutdown the server
 %% Returns: any (ignored by gen_server)
 %% --------------------------------------------------------------------
-terminate(Reason, State) ->
+terminate(_Reason, _State) ->
     ok.
 
 %% --------------------------------------------------------------------

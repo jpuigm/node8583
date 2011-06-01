@@ -14,7 +14,7 @@
 %% --------------------------------------------------------------------
 %% External exports
 %% --------------------------------------------------------------------
--export([start_link/0]).
+-export([start_link/1]).
 
 %% --------------------------------------------------------------------
 %% Internal exports
@@ -35,8 +35,8 @@
 %% ====================================================================
 %% External functions
 %% ====================================================================
-start_link() ->
-	supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+start_link(LSock) ->
+	supervisor:start_link({local, ?SERVER}, ?MODULE, [LSock]).
 
 
 %% ====================================================================
@@ -48,8 +48,8 @@ start_link() ->
 %%          ignore                          |
 %%          {error, Reason}
 %% --------------------------------------------------------------------
-init([]) ->
-    AChild = {node8583_server,{node8583_server,start_link,[]},
+init([LSock]) ->
+    AChild = {node8583_server,{node8583_server,start_link,[LSock]},
 	      permanent,2000,worker,[node8583_server]},
     {ok,{{one_for_one,1,1}, [AChild]}}.
 
