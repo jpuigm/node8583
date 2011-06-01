@@ -79,8 +79,12 @@ handle_info({tcp, Socket, RawData}, State) ->
 	Response = erl8583_message:response(Request),
 	gen_tcp:send(Socket, Length ++ erl8583_marshaller_ascii:marshal(Response)),
     {noreply, State};
+handle_info({tcp_closed, _Socket}, State) ->
+	{stop, normal, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
+	io:format("Listening...~n"),
 	{ok, _Sock} = gen_tcp:accept(LSock),
+	io:format("Accepted.~n"),
 	{noreply, State}.
 
 %% --------------------------------------------------------------------

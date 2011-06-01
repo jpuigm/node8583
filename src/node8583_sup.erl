@@ -50,8 +50,8 @@ start_link(LSock) ->
 %% --------------------------------------------------------------------
 init([LSock]) ->
     AChild = {node8583_server,{node8583_server,start_link,[LSock]},
-	      permanent,2000,worker,[node8583_server]},
-    {ok,{{one_for_one,1,1}, [AChild]}}.
+	      temporary, brutal_kill, worker, [node8583_server]},
+    {ok,{{one_for_one, 0, 1}, [AChild]}}.
 
 %% ====================================================================
 %% Internal functions
