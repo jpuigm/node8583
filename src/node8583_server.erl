@@ -24,7 +24,7 @@
 %% External functions
 %% ====================================================================
 start_link(LSock) ->
-	gen_server:start_link({local, ?MODULE}, ?MODULE, [LSock], []).
+	gen_server:start_link(?MODULE, [LSock], []).
 
 %% ====================================================================
 %% Server functions
@@ -82,7 +82,7 @@ handle_info({tcp, Socket, RawData}, State) ->
 handle_info({tcp_closed, _Socket}, State) ->
 	{stop, normal, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
-	io:format("Listening...~n"),
+	io:format("~p Listening...~n", [self()]),
 	{ok, _Sock} = gen_tcp:accept(LSock),
 	node8583_sup:start_child(),
 	io:format("Accepted.~n"),
@@ -101,7 +101,7 @@ terminate(_Reason, _State) ->
 %% Purpose: Convert process state when code is changed
 %% Returns: {ok, NewState}
 %% --------------------------------------------------------------------
-code_change(OldVsn, State, Extra) ->
+code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% --------------------------------------------------------------------

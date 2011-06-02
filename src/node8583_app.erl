@@ -47,6 +47,7 @@ start(_Type, _StartArgs) ->
 	{ok, LSock} = gen_tcp:listen(8583, [{active, true}]),	
     case node8583_sup:start_link(LSock) of
 	{ok, Pid} ->
+		node8583_sup:start_child(),
 	    {ok, Pid};
 	Other ->
 	    {error, Other}

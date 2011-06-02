@@ -51,9 +51,11 @@ start_child() ->
 %%          {error, Reason}
 %% --------------------------------------------------------------------
 init([LSock]) ->
-    AChild = {node8583_server,{node8583_server,start_link,[LSock]},
-	      temporary, brutal_kill, worker, [node8583_server]},
-    {ok,{{one_for_one, 0, 1}, [AChild]}}.
+	Server = {node8583_server, {node8583_server, start_link, [LSock]},
+			  temporary, brutal_kill, worker, [node8583_server]},
+    Children = [Server],
+	RestartStrategy = {simple_one_for_one, 0, 1},
+    {ok, {RestartStrategy, Children}}.
 
 %% ====================================================================
 %% Internal functions
