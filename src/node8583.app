@@ -5,7 +5,7 @@
 		{modules, 	[node8583_app,
 					node8583_server,
 					node8583_sup]},
-		{applications, [kernel, stdlib, crypto]},
+		{applications, [kernel, stdlib]},
 		{mod, {node8583_app, []}}
 	]
 }.
